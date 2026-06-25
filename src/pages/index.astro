@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// On récupère toutes les fiches pour en montrer quelques-unes en page d'accueil.
+const plantes = await getCollection('plantes');
+const aLaUne = plantes.slice(0, 3);
+---
+<Layout titre="Accueil">
+  <h1>Découvrir les plantes comestibles</h1>
+  <p>
+    Apprends à reconnaître et cuisiner les plantes comestibles, sauvages et cultivées.
+    Chaque fiche indique la saison, l'habitat, les usages et surtout les
+    <strong>précautions et confusions à éviter</strong>.
+  </p>
+
+  <p><a href="/plantes/">→ Voir toutes les plantes</a></p>
+
+  {aLaUne.length > 0 && (
+    <>
+      <h2>Quelques plantes</h2>
+      <ul class="grille">
+        {aLaUne.map((p) => (
+          <li class="carte">
+            <a href={`/plantes/${p.slug}/`}>
+              <strong>{p.data.nom}</strong>
+              <em>{p.data.nomLatin}</em>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  <style>
+    .grille { list-style: none; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .carte { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .carte a { text-decoration: none; display: flex; flex-direction: column; }
+    .carte em { color: #777; font-size: 0.9rem; }
+  </style>
+</Layout>

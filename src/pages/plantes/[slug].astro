@@ -1,0 +1,53 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// Génère une page par fiche présente dans src/content/plantes/.
+export async function getStaticPaths() {
+  const plantes = await getCollection('plantes');
+  return plantes.map((p) => ({
+    params: { slug: p.slug },
+    props: { plante: p },
+  }));
+}
+
+const { plante } = Astro.props;
+const { data } = plante;
+const { Content } = await plante.render();
+---
+<Layout titre={data.nom} description={`${data.nom} (${data.nomLatin}) — comestibilité, saison et précautions.`}>
+  <p><a href="/plantes/">← Toutes les plantes</a></p>
+
+  <h1>{data.nom} <em>{data.nomLatin}</em></h1>
+
+  {data.image && <img class="photo" src={data.image} alt={`Photo de ${data.nom}`} />}
+
+  <table class="infos">
+    <tbody>
+      <tr><th>Type</th><td>{data.type}</td></tr>
+      <tr><th>Comestible</th><td>{data.comestible ? 'Oui' : 'Non'}</td></tr>
+      <tr><th>Parties comestibles</th><td>{data.partiesComestibles.join(', ')}</td></tr>
+      <tr><th>Saison</th><td>{data.saison.join(', ')}</td></tr>
+      <tr><th>Habitat</th><td>{data.habitat}</td></tr>
+      <tr><th>Identification</th><td>{data.difficulte}</td></tr>
+    </tbody>
+  </table>
+
+  <article class="contenu">
+    <Content />
+  </article>
+
+  {data.sources.length > 0 && (
+    <p class="sources"><strong>Sources :</strong> {data.sources.join(' · ')}</p>
+  )}
+
+  <style>
+    .photo { width: 100%; max-height: 360px; object-fit: cover; border-radius: 10px; margin: 1rem 0; }
+    h1 em { color: #777; font-weight: 400; font-size: 1.1rem; display: block; }
+    .infos { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
+    .infos th, .infos td { text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid #eee; }
+    .infos th { width: 40%; background: var(--vert-clair); color: var(--vert); }
+    .contenu :global(h2) { color: var(--vert); margin-top: 1.6rem; }
+    .sources { font-size: 0.85rem; color: #666; }
+  </style>
+</Layout>

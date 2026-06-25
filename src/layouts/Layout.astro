@@ -1,0 +1,98 @@
+---
+// Gabarit commun à toutes les pages : en-tête, pied de page, styles.
+interface Props {
+  titre: string;
+  description?: string;
+}
+const { titre, description = "Plantes comestibles sauvages et cultivées : fiches, saisons, précautions." } = Astro.props;
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{titre} — Plantes comestibles</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="logo">🌿 Plantes comestibles</a>
+      <nav>
+        <a href="/">Accueil</a>
+        <a href="/plantes/">Les plantes</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p class="avertissement">
+        ⚠️ Ce site est informatif. La cueillette comporte des risques.
+        En cas de doute sur l'identification d'une plante, ne jamais la consommer.
+      </p>
+      <p>© {new Date().getFullYear()} — Site réalisé pour découvrir les plantes comestibles.</p>
+    </footer>
+
+    <style is:global>
+      :root {
+        --vert: #3A7D44;
+        --vert-clair: #F2F7F2;
+        --terre: #A9744F;
+        --texte: #2B2B2B;
+        --alerte: #C0392B;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, "Segoe UI", sans-serif;
+        font-size: 17px;
+        line-height: 1.6;
+        color: var(--texte);
+        background: var(--vert-clair);
+      }
+      a { color: var(--vert); }
+      .site-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: var(--vert);
+        padding: 1rem 1.5rem;
+      }
+      .site-header .logo {
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.2rem;
+        text-decoration: none;
+      }
+      .site-header nav a {
+        color: #fff;
+        margin-left: 1.2rem;
+        text-decoration: none;
+      }
+      .site-header nav a:hover { text-decoration: underline; }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+      .site-footer {
+        max-width: 900px;
+        margin: 2rem auto 0;
+        padding: 1.5rem;
+        font-size: 0.9rem;
+        color: #555;
+      }
+      .avertissement {
+        background: #fff;
+        border-left: 4px solid var(--alerte);
+        padding: 0.8rem 1rem;
+        border-radius: 4px;
+        color: var(--texte);
+      }
+    </style>
+  </body>
+</html>

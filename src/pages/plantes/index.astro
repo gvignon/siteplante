@@ -1,0 +1,39 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// Liste de toutes les plantes, triée par nom.
+const plantes = (await getCollection('plantes')).sort((a, b) =>
+  a.data.nom.localeCompare(b.data.nom)
+);
+---
+<Layout titre="Les plantes">
+  <h1>Toutes les plantes</h1>
+  <p>{plantes.length} fiche{plantes.length > 1 ? 's' : ''} pour le moment.</p>
+
+  <ul class="grille">
+    {plantes.map((p) => (
+      <li class="carte">
+        <a href={`/plantes/${p.slug}/`}>
+          {p.data.image && <img src={p.data.image} alt={`Photo de ${p.data.nom}`} />}
+          <strong>{p.data.nom}</strong>
+          <em>{p.data.nomLatin}</em>
+          <span class="badges">
+            <span class="badge">{p.data.type}</span>
+            {p.data.saison.map((s) => <span class="badge">{s}</span>)}
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <style>
+    .grille { list-style: none; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .carte { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .carte a { text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.3rem; }
+    .carte img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; }
+    .carte em { color: #777; font-size: 0.9rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; }
+    .badge { background: var(--vert-clair); border: 1px solid var(--vert); color: var(--vert); font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; }
+  </style>
+</Layout>
