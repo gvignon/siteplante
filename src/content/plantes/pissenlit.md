@@ -1,6 +1,7 @@
 ---
 nom: "Pissenlit"
 nomLatin: "Taraxacum officinale"
+famille: "Astéracées"
 type: "sauvage"
 comestible: true
 partiesComestibles: ["feuilles", "fleurs", "boutons", "racines"]
@@ -8,28 +9,28 @@ saison: ["printemps", "été"]
 habitat: "Partout : prairies, pelouses, bords de chemins, jardins. Très commun."
 image: "/images/pissenlit.jpg"
 difficulte: "facile"
+accroche: "La rosette dentée la plus connue de nos pelouses. Du bouton à la racine, tout se mange — une excellente porte d'entrée vers la cueillette."
+description:
+  - "Plante en rosette plaquée au sol, à feuilles allongées et profondément découpées en dents. Tige creuse et lisse à latex blanc, portant une seule fleur jaune."
+  - "La fleur se transforme en boule de graines, l'« horloge » que l'on souffle enfant."
+usages: "Tout se mange. Les jeunes feuilles en salade, les boutons floraux poêlés ou en pickles, les fleurs en beignets ou en « miel » (cramaillotte), les racines torréfiées en substitut de café."
+recettes:
+  - titre: "Salade aux lardons"
+    texte: "Lave les jeunes feuilles, fais dorer des lardons, déglace au vinaigre et verse chaud sur la salade. Sers avec un œuf poché."
+  - titre: "Cramaillotte"
+    texte: "Fais infuser 4 poignées de fleurs dans 1 L d'eau avec un citron, filtre, ajoute du sucre et fais réduire jusqu'à consistance sirupeuse. Sur des tartines."
+  - titre: "Boutons poêlés"
+    texte: "Saute les boutons encore fermés à l'huile d'olive avec un peu d'ail : un goût proche des câpres, parfait à l'apéritif."
+precautionIntro: "Le pissenlit n'a pas de sosie dangereux : on peut le confondre avec d'autres rosettes à fleur jaune (porcelle, laiteron…), toutes sans danger."
+regles:
+  - "Reconnais-le à son <strong>latex blanc</strong> et ses feuilles sans poils."
+  - "Évite la cueillette au bord des routes et des zones traitées."
+  - "En cas de doute sur l'identification, <strong>ne pas consommer.</strong>"
+bonASavoir:
+  - "Très riche en vitamines A, C et K, et diurétique reconnu."
+  - "Récolte avant la floraison pour des feuilles plus tendres et moins amères."
 sources:
   - "François Couplan, Le régal végétal"
 ---
 
-## Description
-Plante en rosette plaquée au sol, à feuilles allongées et profondément découpées en
-dents (d'où le nom). Tige creuse et lisse contenant un latex blanc, portant une seule
-fleur jaune par tige, qui se transforme en boule de graines (l'« horloge » que les
-enfants soufflent).
-
-## Comestibilité et usages
-Tout se mange. Les **jeunes feuilles** en salade (plus amères avec l'âge), les **boutons**
-floraux poêlés ou en pickles, les **fleurs** en beignets ou en « miel » (cramaillotte),
-les **racines** torréfiées en substitut de café. Récolter de préférence avant la
-floraison pour des feuilles plus tendres.
-
-## ⚠️ Précautions et confusions
-Le pissenlit n'a pas de sosie dangereux : on peut le confondre avec d'autres plantes à
-fleur jaune en rosette (porcelle, laiteron…), toutes comestibles ou sans danger. Le latex
-blanc et les feuilles sans poils aident à le reconnaître. Évite la cueillette au bord des
-routes et des zones traitées. *En cas de doute sur l'identification, ne pas consommer.*
-
-## Bon à savoir
-Très riche en vitamines A, C et K. Diurétique reconnu (son surnom populaire en témoigne).
-Une des premières plantes sauvages conseillées aux débutants.
+Fiche éditoriale du pissenlit.

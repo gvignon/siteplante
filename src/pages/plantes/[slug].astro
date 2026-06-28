@@ -2,52 +2,285 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-// Génère une page par fiche présente dans src/content/plantes/.
 export async function getStaticPaths() {
   const plantes = await getCollection('plantes');
-  return plantes.map((p) => ({
-    params: { slug: p.slug },
-    props: { plante: p },
-  }));
+  return plantes.map((p) => ({ params: { slug: p.slug }, props: { plante: p } }));
 }
 
 const { plante } = Astro.props;
 const { data } = plante;
 const { Content } = await plante.render();
+
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const accroche = data.accroche || data.description[0] || data.habitat;
+const sousTitre = data.nomLatin + (data.famille ? `  ·  famille des ${data.famille}` : '');
+
+const habitatMot = data.habitat.split(/[ ,:.]/).filter(Boolean)[0];
+const chips = [];
+if (data.comestible) chips.push({ t: 'Comestible' });
+data.saison.forEach((s) => chips.push({ t: cap(s) }));
+if (habitatMot) chips.push({ t: habitatMot });
+if (data.confusions.length) chips.push({ t: 'Confusion possible', danger: true });
+
+const diffColor = { facile: 'var(--accent)', moyenne: 'var(--amber)', experte: 'var(--danger)' }[data.difficulte];
+
+const moisParSaison = { printemps: [3, 4, 5], 'été': [6, 7, 8], automne: [9, 10, 11], hiver: [12, 1, 2] };
+const moisActifs = new Set();
+data.saison.forEach((s) => (moisParSaison[s] || []).forEach((m) => moisActifs.add(m)));
+const moisLabels = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+
+const niveauStyle = {
+  comestible: { label: 'Comestible', bg: 'var(--accent)', fg: '#f3f5ea', border: 'var(--accent)' },
+  mortel: { label: 'Mortel', bg: '#7e2c1d', fg: '#fff', border: 'rgba(156,74,57,.4)' },
+  toxique: { label: 'Très toxique', bg: '#a8492f', fg: '#fff', border: 'rgba(156,74,57,.3)' },
+  irritant: { label: 'Irritant', bg: '#b07d3c', fg: '#fff', border: 'rgba(176,125,60,.35)' },
+};
+const roman = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii'];
+const hasContent = data.description.length || data.usages || data.recettes.length;
+
+const brandSvg = `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Recette Sauvage">
+  <defs>
+    <linearGradient id="rsP2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f9a8d4"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
+    <linearGradient id="rsB2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#4f6ef7"/></linearGradient>
+  </defs>
+  <rect x="1.5" y="1.5" width="45" height="45" rx="13.5" fill="#111a37"/>
+  <rect x="22.8" y="13" width="2.4" height="26" rx="1.2" fill="#fff"/>
+  <g fill="url(#rsP2)"><g transform="translate(23.4,31) rotate(-44)"><path d="M0 0 C 4 -4 4 -10 0 -14 C -4 -10 -4 -4 0 0 Z"/></g><g transform="translate(23.4,23.5) rotate(-44)"><path d="M0 0 C 3.2 -3.2 3.2 -8 0 -11.4 C -3.2 -8 -3.2 -3.2 0 0 Z"/></g></g>
+  <g fill="url(#rsB2)"><g transform="translate(24.6,31) rotate(44)"><path d="M0 0 C 4 -4 4 -10 0 -14 C -4 -10 -4 -4 0 0 Z"/></g><g transform="translate(24.6,23.5) rotate(44)"><path d="M0 0 C 3.2 -3.2 3.2 -8 0 -11.4 C -3.2 -8 -3.2 -3.2 0 0 Z"/></g></g>
+  <g transform="translate(24,14.5)" fill="url(#rsB2)"><path d="M0 0 C 2.8 -3 2.8 -7.5 0 -10.5 C -2.8 -7.5 -2.8 -3 0 0 Z"/></g>
+</svg>`;
 ---
-<Layout titre={data.nom} description={`${data.nom} (${data.nomLatin}) — comestibilité, saison et précautions.`}>
-  <p><a href="/plantes/">← Toutes les plantes</a></p>
+<Layout titre={data.nom} description={`${data.nom} (${data.nomLatin}) — comestibilité, saison, recettes et précautions.`} showHeader={false}>
+  <nav class="dc-nav">
+    <div class="dc-nav__inner">
+      <a href="/" class="brand">
+        <span class="brand__logo" set:html={brandSvg} />
+        <span class="brand__txt">
+          <span class="brand__name">Recette <span class="brand__name--accent">Sauvage</span></span>
+          <span class="brand__tag">cuisine des plantes sauvages</span>
+        </span>
+      </a>
+      <div class="dc-nav__links">
+        <a href="/plantes/">← Les plantes</a>
+        <a href="#fiche">Fiche</a>
+        {data.description.length > 0 && <a href="#description">Description</a>}
+        {data.usages && <a href="#usages">Usages</a>}
+        {data.recettes.length > 0 && <a href="#recettes">Recettes</a>}
+        <a href="#precautions" class="is-danger">Confusions</a>
+      </div>
+    </div>
+  </nav>
 
-  <h1>{data.nom} <em>{data.nomLatin}</em></h1>
+  <div id="top" class="dc-wrap">
+    <header class="hero">
+      <div aria-hidden="true" class="hero__watermark">{data.nomLatin.split(' ')[0]}<br>{data.nomLatin.split(' ').slice(1).join(' ')}</div>
+      <div class="hero__grid">
+        <div>
+          <div class="eyebrow"><span class="eyebrow__line"></span><span class="eyebrow__txt">Plante {data.type} {data.comestible ? 'comestible' : ''}</span></div>
+          <h1 class="hero__title">{data.nom}</h1>
+          <p class="hero__latin">{sousTitre}</p>
+          <p class="hero__intro">{accroche}</p>
+          <div class="chips">{chips.map((c) => <span class={`chip${c.danger ? ' chip--danger' : ''}`}>{c.t}</span>)}</div>
+        </div>
+        <figure class="plate">
+          <div class="plate__frame">
+            <div class="plate__placeholder">{data.nomLatin}</div>
+            {(data.specimen || data.image) && <img src={data.specimen || data.image} alt={`${data.nom} dans son habitat`} loading="lazy" onerror="this.style.display='none'" />}
+            <span class="plate__num">N°&nbsp;{String(plante.slug.length).padStart(2, '0')}</span>
+          </div>
+          <figcaption class="plate__cap"><span>{data.nomLatin.split(' ').map((w, i) => i === 0 ? w[0] + '.' : w).join(' ')}</span><span>{data.saison[0]}</span></figcaption>
+        </figure>
+      </div>
+    </header>
 
-  {data.image && <img class="photo" src={data.image} alt={`Photo de ${data.nom}`} />}
+    <section id="fiche" class="sec">
+      <div class="sec__head"><h2 class="sec__title">Fiche d'identité</h2><span class="sec__rule"></span></div>
+      <dl class="idcard">
+        <div class="idrow"><dt>Nom latin</dt><dd class="serif-it">{data.nomLatin}</dd></div>
+        <div class="idrow"><dt>Type</dt><dd>{cap(data.type)}</dd></div>
+        <div class="idrow"><dt>Comestible</dt><dd style="color:var(--accent);font-weight:600">{data.comestible ? 'Oui' : 'Non'}</dd></div>
+        <div class="idrow"><dt>Parties</dt><dd style="text-align:right">{data.partiesComestibles.join(' · ')}</dd></div>
+        <div class="idrow"><dt>Saison</dt><dd>{data.saison.map(cap).join(' · ')}</dd></div>
+        <div class="idrow"><dt>Identification</dt><dd style={`color:${diffColor};font-weight:600`}>{cap(data.difficulte)}</dd></div>
+        <div class="idrow idrow--full"><dt>Habitat</dt><dd style="text-align:right;max-width:62ch">{data.habitat}</dd></div>
+      </dl>
+    </section>
 
-  <table class="infos">
-    <tbody>
-      <tr><th>Type</th><td>{data.type}</td></tr>
-      <tr><th>Comestible</th><td>{data.comestible ? 'Oui' : 'Non'}</td></tr>
-      <tr><th>Parties comestibles</th><td>{data.partiesComestibles.join(', ')}</td></tr>
-      <tr><th>Saison</th><td>{data.saison.join(', ')}</td></tr>
-      <tr><th>Habitat</th><td>{data.habitat}</td></tr>
-      <tr><th>Identification</th><td>{data.difficulte}</td></tr>
-    </tbody>
-  </table>
+    {data.description.length > 0 && (
+      <section id="description" class="sec sec--split">
+        <div>
+          <div class="sec__head"><h2 class="sec__title">Description</h2><span class="sec__rule"></span></div>
+          {data.description.map((p, i) => (<p class="prose">{i === 0 ? <span class="dropcap">{p[0]}</span> : null}{i === 0 ? p.slice(1) : p}</p>))}
+        </div>
+        {data.callouts.length > 0 && (
+          <ul class="callouts">
+            {data.callouts.map((c, i) => (<li><span class="callouts__n">{String(i + 1).padStart(2, '0')}</span><div><div class="callouts__t">{c.titre}</div><div class="callouts__x">{c.texte}</div></div></li>))}
+          </ul>
+        )}
+      </section>
+    )}
 
-  <article class="contenu">
-    <Content />
-  </article>
+    {data.usages && (
+      <section id="usages" class="sec">
+        <div class="sec__head"><h2 class="sec__title">Comestibilité &amp; usages</h2><span class="sec__rule"></span></div>
+        <p class="lede">{data.usages}</p>
+      </section>
+    )}
 
-  {data.sources.length > 0 && (
-    <p class="sources"><strong>Sources :</strong> {data.sources.join(' · ')}</p>
-  )}
+    {data.recettes.length > 0 && (
+      <section id="recettes" class="sec">
+        <div class="sec__head"><h2 class="sec__title">{data.recettes.length === 3 ? 'Trois recettes' : 'Recettes'}</h2><span class="sec__rule"></span></div>
+        <div class="recettes">
+          {data.recettes.map((r, i) => (
+            <article class="recette">
+              <div class="recette__img"><div class="recette__ph">{data.nom}</div>{r.image && <img src={r.image} alt={r.titre} loading="lazy" onerror="this.style.display='none'" />}</div>
+              <div class="recette__body"><span class="recette__n">{String(i + 1).padStart(2, '0')}</span><h3 class="recette__t">{r.titre}</h3><p class="recette__x">{r.texte}</p></div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section id="precautions" class="sec">
+      <div class="danger-box">
+        <div class="danger-box__eyebrow"><span class="dot"></span><span>{data.confusions.length ? 'Précautions — confusions' : 'Précautions'}</span></div>
+        <h2 class="danger-box__title">{data.precautionTitre || 'À vérifier avant de consommer'}</h2>
+        {data.precautionIntro && <p class="danger-box__intro">{data.precautionIntro}</p>}
+        {data.confusions.length > 0 && (
+          <div class="compar">
+            {data.confusions.map((c) => {
+              const st = niveauStyle[c.niveau];
+              return (
+                <article class="compar__card" style={`border-color:${st.border}`}>
+                  <div class="compar__img"><div class="compar__ph">{c.nom}</div></div>
+                  <div class="compar__body"><span class="compar__badge" style={`background:${st.bg};color:${st.fg}`}>{st.label}</span><h3 class="compar__name">{c.nom}</h3><p class="compar__x">{c.texte}</p></div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+        {data.regles.length > 0 && (
+          <ol class="rules">{data.regles.map((r, i) => (<li><span class="rules__n">{roman[i]}.</span><p set:html={r}></p></li>))}</ol>
+        )}
+      </div>
+    </section>
+
+    <section id="savoir" class="sec sec--split sec--center">
+      <div>
+        <div class="sec__head"><h2 class="sec__title">Bon à savoir</h2><span class="sec__rule"></span></div>
+        {data.bonASavoir.length > 0
+          ? data.bonASavoir.map((p) => <p class="prose" set:html={p}></p>)
+          : <p class="prose">Récolte respectueuse : prélève avec modération, sans épuiser la station, pour que la plante revienne l'année suivante.</p>}
+      </div>
+      <div class="cal">
+        <div class="cal__label">Calendrier de récolte</div>
+        <div class="cal__grid">
+          {moisLabels.map((m, i) => {
+            const actif = moisActifs.has(i + 1);
+            return (<div class="cal__cell"><div class={`cal__bar${actif ? ' is-on' : ''}`}></div><div class={`cal__m${actif ? ' is-on' : ''}`}>{m}</div></div>);
+          })}
+        </div>
+        <div class="cal__legend"><span class="cal__sw"></span> Pleine saison</div>
+      </div>
+    </section>
+
+    {!hasContent && <section class="sec"><div class="prose"><Content /></div></section>}
+    {data.sources.length > 0 && <p class="sources">Sources : {data.sources.join(' · ')}</p>}
+  </div>
 
   <style>
-    .photo { width: 100%; max-height: 360px; object-fit: cover; border-radius: 10px; margin: 1rem 0; }
-    h1 em { color: #777; font-weight: 400; font-size: 1.1rem; display: block; }
-    .infos { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
-    .infos th, .infos td { text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid #eee; }
-    .infos th { width: 40%; background: var(--vert-clair); color: var(--vert); }
-    .contenu :global(h2) { color: var(--vert); margin-top: 1.6rem; }
-    .sources { font-size: 0.85rem; color: #666; }
+    .dc-wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .dc-nav { position: sticky; top: 0; z-index: 40; backdrop-filter: saturate(1.1) blur(6px); background: color-mix(in srgb, var(--paper) 84%, transparent); border-bottom: 1px solid var(--line); }
+    .dc-nav__inner { max-width: 1120px; margin: 0 auto; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .dc-nav__links { display: flex; gap: 4px; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; flex-wrap: wrap; }
+    .dc-nav__links a { text-decoration: none; color: var(--muted2); padding: 7px 11px; border-radius: 2px; transition: 0.2s; }
+    .dc-nav__links a:hover { color: var(--ink2); background: rgba(47,74,52,0.08); }
+    .dc-nav__links a.is-danger { color: var(--danger); }
+    .hero { position: relative; padding: 60px 0 50px; }
+    .hero__watermark { position: absolute; right: -10px; top: 24px; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(54px, 10vw, 140px); line-height: 0.9; color: rgba(47,74,52,0.06); pointer-events: none; user-select: none; text-align: right; max-width: 60%; }
+    .hero__grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 54px; align-items: end; position: relative; }
+    .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .eyebrow__line { width: 34px; height: 1px; background: var(--accent); }
+    .eyebrow__txt { font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); }
+    .hero__title { font-family: var(--serif); font-weight: 500; font-size: clamp(48px, 8vw, 92px); line-height: 0.96; letter-spacing: -1.5px; margin: 0 0 14px; color: #222b1b; }
+    .hero__latin { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 23px; color: #5a6b4c; margin: 0 0 24px; }
+    .hero__intro { max-width: 46ch; font-size: 16.5px; line-height: 1.7; color: var(--ink3); margin: 0 0 28px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { font-family: var(--mono); font-size: 11px; letter-spacing: 0.5px; padding: 7px 13px; border: 1px solid rgba(47,74,52,0.25); border-radius: 100px; color: var(--ink3); }
+    .chip--danger { border-color: rgba(156,74,57,0.4); color: var(--danger); }
+    .plate { margin: 0; }
+    .plate__frame { position: relative; aspect-ratio: 3/4; border: 1px solid rgba(47,74,52,0.28); background: var(--card); overflow: hidden; }
+    .plate__placeholder, .recette__ph, .compar__ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-family: var(--serif); font-style: italic; color: var(--muted); background: repeating-linear-gradient(135deg, #f1ede1, #f1ede1 12px, #efe9da 12px, #efe9da 24px); }
+    .plate__frame img, .recette__img img, .compar__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .plate__num { position: absolute; top: 10px; left: 12px; padding: 2px 7px; background: rgba(247,244,234,0.85); font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.5px; color: var(--ink3); }
+    .plate__cap { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .sec { padding: 14px 0 52px; scroll-margin-top: 80px; }
+    .sec--split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .sec--center { align-items: center; }
+    .sec__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+    .sec__title { font-family: var(--serif); font-weight: 500; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink2); margin: 0; }
+    .sec__rule { flex: 1; height: 1px; background: rgba(47,74,52,0.18); }
+    .idcard { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; }
+    .idrow { display: flex; justify-content: space-between; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line-soft); }
+    .idrow--full { grid-column: 1 / -1; }
+    .idrow dt { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    .idrow dd { margin: 0; font-size: 16px; color: var(--ink3); }
+    .serif-it { font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--ink) !important; }
+    .prose { font-size: 17px; line-height: 1.8; color: var(--ink3); margin: 0 0 18px; }
+    .dropcap { float: left; font-family: var(--serif); font-weight: 500; font-size: 74px; line-height: 0.74; padding: 6px 12px 0 0; color: var(--accent); }
+    .lede { font-family: var(--serif); font-weight: 300; font-size: 19px; line-height: 1.8; color: var(--ink3); margin: 0; max-width: 72ch; }
+    .callouts { list-style: none; margin: 0; padding: 0; }
+    .callouts li { display: flex; gap: 18px; padding: 18px 0; border-top: 1px solid var(--line-soft); }
+    .callouts li:last-child { border-bottom: 1px solid var(--line-soft); }
+    .callouts__n { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--accent); min-width: 34px; }
+    .callouts__t { font-weight: 600; font-size: 15px; color: var(--ink); margin-bottom: 3px; }
+    .callouts__x { font-size: 14.5px; line-height: 1.6; color: var(--muted2); }
+    .recettes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .recette { background: var(--card); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; }
+    .recette__img { position: relative; aspect-ratio: 4/3; overflow: hidden; border-bottom: 1px solid var(--line-soft); }
+    .recette__body { padding: 20px 22px 24px; }
+    .recette__n { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--accent); }
+    .recette__t { font-family: var(--serif); font-weight: 500; font-size: 21px; margin: 6px 0 10px; color: var(--ink); }
+    .recette__x { font-size: 14.5px; line-height: 1.65; color: var(--muted2); margin: 0; }
+    .danger-box { border: 1px solid rgba(156,74,57,0.35); border-radius: 3px; background: var(--danger-bg); padding: 38px 42px; }
+    .danger-box__eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--danger); }
+    .dot { width: 9px; height: 9px; border-radius: 100px; background: var(--danger); }
+    .danger-box__title { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 4vw, 38px); margin: 0 0 16px; color: var(--danger2); line-height: 1.05; }
+    .danger-box__intro { font-size: 16px; line-height: 1.75; color: #5a4a44; max-width: 64ch; margin: 0 0 32px; }
+    .compar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 34px; }
+    .compar__card { background: #fbf8f1; border: 1px solid rgba(156,74,57,0.28); border-radius: 3px; overflow: hidden; }
+    .compar__img { aspect-ratio: 1; overflow: hidden; position: relative; }
+    .compar__ph { font-size: 13px; }
+    .compar__body { padding: 14px 16px; }
+    .compar__badge { display: inline-block; font-family: var(--mono); font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; margin-bottom: 10px; }
+    .compar__name { font-family: var(--serif); font-weight: 500; font-size: 19px; margin: 0 0 6px; color: var(--ink); }
+    .compar__x { font-size: 13px; line-height: 1.55; color: var(--muted2); margin: 0; }
+    .rules { list-style: none; counter-reset: r; margin: 0; padding: 0; }
+    .rules li { display: flex; gap: 18px; padding: 16px 0; border-top: 1px solid rgba(156,74,57,0.2); }
+    .rules li:last-child { border-bottom: 1px solid rgba(156,74,57,0.2); }
+    .rules__n { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--danger); min-width: 30px; }
+    .rules p { margin: 0; font-size: 15px; line-height: 1.65; color: #473d39; }
+    .rules strong { color: var(--danger2); }
+    .cal { background: var(--card); border: 1px solid var(--line); border-radius: 3px; padding: 26px; }
+    .cal__label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .cal__grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; }
+    .cal__cell { text-align: center; }
+    .cal__bar { height: 42px; border-radius: 2px; background: rgba(47,74,52,0.07); }
+    .cal__bar.is-on { background: var(--accent); }
+    .cal__m { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; }
+    .cal__m.is-on { color: var(--ink2); font-weight: 600; }
+    .cal__legend { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--muted2); }
+    .cal__sw { width: 12px; height: 12px; border-radius: 2px; background: var(--accent); }
+    .sources { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; color: var(--muted); padding: 8px 0 0; }
+    @media (max-width: 820px) {
+      .hero__grid, .sec--split { grid-template-columns: 1fr; gap: 36px; }
+      .recettes { grid-template-columns: 1fr; }
+      .compar { grid-template-columns: 1fr 1fr; }
+      .idcard { grid-template-columns: 1fr; gap: 0; }
+      .hero__watermark { display: none; }
+      .dc-wrap { padding: 0 20px; }
+      .dc-nav__inner { padding: 12px 20px; }
+      .danger-box { padding: 26px 20px; }
+    }
   </style>
 </Layout>

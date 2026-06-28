@@ -26,6 +26,9 @@ Tu crées une fiche de plante comestible cohérente avec le site, sûre et bien 
 5. **Image** : indiquer le chemin /images/<slug>.jpg dans le frontmatter, et rappeler à
    l'utilisateur d'ajouter la photo dans public/images/.
 6. **Sources** : citer au moins une référence fiable (ouvrage ou site reconnu).
+7. **Recettes** : inclure une rubrique « ## Recettes culinaires » avec **trois recettes
+   simples** (format « **Nom.** description courte »), en respectant la sécurité (cuire ce
+   qui doit l'être, cru pour ce qui se mange cru).
 
 ## Style
 - Phrases courtes, claires, ton prudent et pédagogique.
@@ -35,3 +38,13 @@ Tu crées une fiche de plante comestible cohérente avec le site, sûre et bien 
 ## Après génération
 Indiquer à l'utilisateur : le fichier créé, la photo à ajouter, et les éventuelles
 confusions dangereuses à vérifier avant publication.
+
+
+## Format structuré (design « Recette Sauvage »)
+Les fiches utilisent désormais des **données structurées** en frontmatter (voir
+`src/content/plantes/_TEMPLATE.md`) : `accroche`, `description` (liste de paragraphes),
+`callouts`, `usages`, `recettes` (liste titre/texte), `precautionIntro`, `confusions`
+(comparateur niveau comestible/mortel/toxique/irritant), `regles`, `bonASavoir`.
+Le gabarit Astro met tout en page automatiquement. Remplir ces champs plutôt que
+d'écrire un long corps Markdown. Toujours inclure une règle finale « en cas de doute,
+ne pas consommer » et un comparateur `confusions` si la plante a des sosies dangereux.

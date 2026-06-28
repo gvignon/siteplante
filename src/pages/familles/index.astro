@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { familles } from '../../data/familles';
+const plantes = await getCollection('plantes');
+const counts = {};
+plantes.forEach((p) => { if (p.data.famille) counts[p.data.famille] = (counts[p.data.famille] || 0) + 1; });
+---
+<Layout titre="Familles botaniques">
+  <div class="wrap">
+    <header class="head">
+      <div class="eyebrow"><span class="eyebrow__line"></span><span class="eyebrow__txt">Classification</span></div>
+      <h1 class="head__title">Par famille botanique</h1>
+      <p class="head__intro">Regrouper les plantes par famille aide à les reconnaître : une même famille partage souvent une silhouette, une fleur ou une odeur caractéristiques. Voici les familles les plus répandues de la flore de France continentale.</p>
+    </header>
+    <ul class="fam-grid">
+      {familles.map((f) => (
+        <li>
+          <a class={`fam-card${f.risque ? ' fam-card--risk' : ''}`} href={`/familles/${f.slug}/`}>
+            <div class="fam-card__top">
+              <h2 class="fam-card__nom">{f.nom}</h2>
+              <span class="fam-card__latin">{f.latin}</span>
+            </div>
+            <p class="fam-card__resume">{f.resume}</p>
+            <div class="fam-card__foot">
+              <span class="fam-card__count">{counts[f.nom] ? `${counts[f.nom]} fiche${counts[f.nom] > 1 ? 's' : ''}` : 'À venir'}</span>
+              {f.risque && <span class="fam-card__risk">⚠ Famille à risque</span>}
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <style>
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .head { padding: 56px 0 36px; max-width: 720px; }
+    .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .eyebrow__line { width: 34px; height: 1px; background: var(--accent); }
+    .eyebrow__txt { font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); }
+    .head__title { font-family: var(--serif); font-weight: 500; font-size: clamp(38px, 6vw, 64px); line-height: 1; letter-spacing: -1px; margin: 0 0 16px; color: #222b1b; }
+    .head__intro { font-size: 16.5px; line-height: 1.7; color: var(--ink3); margin: 0; }
+    .fam-grid { list-style: none; margin: 0; padding: 0 0 40px; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .fam-card { display: flex; flex-direction: column; gap: 12px; height: 100%; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 3px; padding: 22px 24px; text-decoration: none; color: inherit; transition: 0.2s; }
+    .fam-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(47,74,52,0.12); }
+    .fam-card--risk { border-left-color: var(--danger); }
+    .fam-card__top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .fam-card__nom { font-family: var(--serif); font-weight: 500; font-size: 24px; margin: 0; color: var(--ink); }
+    .fam-card__latin { font-family: var(--mono); font-size: 11px; letter-spacing: 0.5px; color: var(--muted); }
+    .fam-card__resume { font-size: 14.5px; line-height: 1.6; color: var(--muted2); margin: 0; flex: 1; }
+    .fam-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .fam-card__count { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+    .fam-card__risk { font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--danger); }
+    @media (max-width: 720px) { .wrap { padding: 0 20px; } }
+  </style>
+</Layout>

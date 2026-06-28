@@ -1,0 +1,101 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { familles } from '../../data/familles';
+
+export async function getStaticPaths() {
+  return familles.map((f) => ({ params: { slug: f.slug }, props: { famille: f } }));
+}
+
+const { famille } = Astro.props;
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const plantes = (await getCollection('plantes'))
+  .filter((p) => p.data.famille === famille.nom)
+  .sort((a, b) => a.data.nom.localeCompare(b.data.nom));
+---
+<Layout titre={`Famille des ${famille.nom}`}>
+  <div class="wrap">
+    <p class="back"><a href="/familles/">← Toutes les familles</a></p>
+
+    <header class={`fam-hero${famille.risque ? ' fam-hero--risk' : ''}`}>
+      <div class="eyebrow"><span class="eyebrow__line"></span><span class="eyebrow__txt">Famille botanique</span></div>
+      <h1 class="fam-hero__title">{famille.nom}</h1>
+      <p class="fam-hero__latin">{famille.latin}</p>
+      <p class="fam-hero__resume">{famille.resume}</p>
+    </header>
+
+    <section class="sec">
+      <div class="sec__head"><h2 class="sec__title">Caractéristiques</h2><span class="sec__rule"></span></div>
+      <ul class="carac">
+        {famille.caracteristiques.map((c, i) => (
+          <li><span class="carac__n">{String(i + 1).padStart(2, '0')}</span><span>{c}</span></li>
+        ))}
+      </ul>
+      {famille.risque && (
+        <p class="risk-note">⚠️ Cette famille contient des espèces toxiques, voire mortelles. Ne jamais consommer une plante de cette famille sans une identification absolument certaine.</p>
+      )}
+    </section>
+
+    <section class="sec">
+      <div class="sec__head"><h2 class="sec__title">Plantes de cette famille</h2><span class="sec__rule"></span></div>
+      {plantes.length > 0 ? (
+        <ul class="grid">
+          {plantes.map((p) => (
+            <li>
+              <a class="card" href={`/plantes/${p.slug}/`}>
+                <div class="card__img"><div class="card__ph">{p.data.nomLatin}</div>{p.data.image && <img src={p.data.image} alt={p.data.nom} loading="lazy" onerror="this.style.display='none'" />}</div>
+                <div class="card__body">
+                  <h3 class="card__name">{p.data.nom}</h3>
+                  <p class="card__latin">{p.data.nomLatin}</p>
+                  <div class="card__badges">
+                    {p.data.confusions.length > 0 && <span class="badge badge--warn">Confusion possible</span>}
+                    {p.data.saison.map((s) => <span class="badge">{cap(s)}</span>)}
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">Aucune fiche pour cette famille pour l'instant — elle arrivera bientôt.</p>
+      )}
+    </section>
+  </div>
+  <style>
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .back { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 22px 0 0; margin: 0; }
+    .back a { color: var(--muted2); text-decoration: none; }
+    .fam-hero { padding: 40px 0 44px; max-width: 720px; border-left: 3px solid var(--accent); padding-left: 28px; margin: 12px 0 8px; }
+    .fam-hero--risk { border-left-color: var(--danger); }
+    .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .eyebrow__line { width: 34px; height: 1px; background: var(--accent); }
+    .eyebrow__txt { font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); }
+    .fam-hero__title { font-family: var(--serif); font-weight: 500; font-size: clamp(40px, 7vw, 72px); line-height: 1; letter-spacing: -1px; margin: 0 0 6px; color: #222b1b; }
+    .fam-hero__latin { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 21px; color: #5a6b4c; margin: 0 0 22px; }
+    .fam-hero__resume { font-size: 17px; line-height: 1.75; color: var(--ink3); margin: 0; }
+    .sec { padding: 14px 0 48px; }
+    .sec__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+    .sec__title { font-family: var(--serif); font-weight: 500; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink2); margin: 0; }
+    .sec__rule { flex: 1; height: 1px; background: rgba(47,74,52,0.18); }
+    .carac { list-style: none; margin: 0; padding: 0; max-width: 760px; }
+    .carac li { display: flex; gap: 18px; padding: 16px 0; border-top: 1px solid var(--line-soft); }
+    .carac li:last-child { border-bottom: 1px solid var(--line-soft); }
+    .carac__n { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--accent); min-width: 34px; }
+    .carac li span:last-child { font-size: 16px; line-height: 1.6; color: var(--ink3); }
+    .risk-note { margin: 24px 0 0; background: var(--danger-bg); border: 1px solid rgba(156,74,57,0.35); border-radius: 3px; padding: 18px 22px; font-size: 15px; line-height: 1.65; color: var(--danger2); max-width: 760px; }
+    .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .card { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; text-decoration: none; color: inherit; transition: 0.2s; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(47,74,52,0.12); }
+    .card__img { position: relative; aspect-ratio: 4/3; overflow: hidden; border-bottom: 1px solid var(--line-soft); }
+    .card__ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-family: var(--serif); font-style: italic; color: var(--muted); background: repeating-linear-gradient(135deg, #f1ede1, #f1ede1 12px, #efe9da 12px, #efe9da 24px); }
+    .card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .card__body { padding: 18px 20px 22px; }
+    .card__name { font-family: var(--serif); font-weight: 500; font-size: 22px; margin: 0 0 4px; color: var(--ink); }
+    .card__latin { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+    .card__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 9px; border: 1px solid rgba(47,74,52,0.25); border-radius: 100px; color: var(--ink3); }
+    .badge--warn { border-color: rgba(156,74,57,0.4); color: var(--danger); }
+    .empty { font-size: 16px; color: var(--muted2); }
+    @media (max-width: 720px) { .wrap { padding: 0 20px; } .fam-hero { padding-left: 18px; } }
+  </style>
+</Layout>

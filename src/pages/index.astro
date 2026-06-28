@@ -1,41 +1,91 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-
-// On récupère toutes les fiches pour en montrer quelques-unes en page d'accueil.
-const plantes = await getCollection('plantes');
-const aLaUne = plantes.slice(0, 3);
+import { familles } from '../data/familles';
+const plantes = (await getCollection('plantes')).sort((a, b) => a.data.nom.localeCompare(b.data.nom));
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const counts = {};
+plantes.forEach((p) => { if (p.data.famille) counts[p.data.famille] = (counts[p.data.famille] || 0) + 1; });
 ---
 <Layout titre="Accueil">
-  <h1>Découvrir les plantes comestibles</h1>
-  <p>
-    Apprends à reconnaître et cuisiner les plantes comestibles, sauvages et cultivées.
-    Chaque fiche indique la saison, l'habitat, les usages et surtout les
-    <strong>précautions et confusions à éviter</strong>.
-  </p>
+  <div class="wrap">
+    <header class="home-hero">
+      <div class="eyebrow"><span class="eyebrow__line"></span><span class="eyebrow__txt">Guide de cueillette</span></div>
+      <h1 class="home-hero__title">Cuisiner les plantes<br>comestibles sauvages</h1>
+      <p class="home-hero__intro">Apprends à reconnaître, récolter et cuisiner les plantes sauvages et cultivées. Chaque fiche détaille la saison, l'habitat, trois recettes simples — et surtout les <strong>confusions à éviter</strong>.</p>
+      <a href="/plantes/" class="btn">Parcourir les plantes →</a>
+    </header>
 
-  <p><a href="/plantes/">→ Voir toutes les plantes</a></p>
-
-  {aLaUne.length > 0 && (
-    <>
-      <h2>Quelques plantes</h2>
-      <ul class="grille">
-        {aLaUne.map((p) => (
-          <li class="carte">
-            <a href={`/plantes/${p.slug}/`}>
-              <strong>{p.data.nom}</strong>
-              <em>{p.data.nomLatin}</em>
+    <section class="sec">
+      <div class="sec__head"><h2 class="sec__title">Rechercher par famille</h2><span class="sec__rule"></span><a class="sec__link" href="/familles/">Tout voir →</a></div>
+      <p class="sec__intro">Les plantes d'une même famille partagent souvent une silhouette, une fleur ou une odeur. Choisis une famille pour explorer ses caractéristiques et ses plantes.</p>
+      <ul class="fam-grid">
+        {familles.map((f) => (
+          <li>
+            <a class={`fam-chip${f.risque ? ' fam-chip--risk' : ''}`} href={`/familles/${f.slug}/`}>
+              <span class="fam-chip__nom">{f.nom}</span>
+              <span class="fam-chip__meta">{f.latin} · {counts[f.nom] ? `${counts[f.nom]} fiche${counts[f.nom] > 1 ? 's' : ''}` : 'à venir'}</span>
             </a>
           </li>
         ))}
       </ul>
-    </>
-  )}
+    </section>
 
+    <section class="sec">
+      <div class="sec__head"><h2 class="sec__title">Les plantes</h2><span class="sec__rule"></span></div>
+      <ul class="grid">
+        {plantes.map((p) => (
+          <li>
+            <a class="card" href={`/plantes/${p.slug}/`}>
+              <div class="card__img"><div class="card__ph">{p.data.nomLatin}</div>{p.data.image && <img src={p.data.image} alt={p.data.nom} loading="lazy" onerror="this.style.display='none'" />}</div>
+              <div class="card__body">
+                <h3 class="card__name">{p.data.nom}</h3>
+                <p class="card__latin">{p.data.nomLatin}</p>
+                <div class="card__badges">
+                  {p.data.confusions.length > 0 && <span class="badge badge--warn">Confusion possible</span>}
+                  {p.data.saison.map((s) => <span class="badge">{cap(s)}</span>)}
+                </div>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
   <style>
-    .grille { list-style: none; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-    .carte { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .carte a { text-decoration: none; display: flex; flex-direction: column; }
-    .carte em { color: #777; font-size: 0.9rem; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .home-hero { padding: 64px 0 44px; max-width: 640px; }
+    .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .eyebrow__line { width: 34px; height: 1px; background: var(--accent); }
+    .eyebrow__txt { font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); }
+    .home-hero__title { font-family: var(--serif); font-weight: 500; font-size: clamp(40px, 7vw, 74px); line-height: 1; letter-spacing: -1.5px; margin: 0 0 22px; color: #222b1b; }
+    .home-hero__intro { font-size: 17px; line-height: 1.75; color: var(--ink3); margin: 0 0 28px; }
+    .btn { display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; background: var(--accent); color: #f3f5ea; text-decoration: none; padding: 14px 22px; border-radius: 2px; transition: 0.2s; }
+    .btn:hover { background: #5a7d56; }
+    .sec { padding: 14px 0 60px; }
+    .sec__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+    .sec__title { font-family: var(--serif); font-weight: 500; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink2); margin: 0; }
+    .sec__rule { flex: 1; height: 1px; background: rgba(47,74,52,0.18); }
+    .sec__link { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); text-decoration: none; white-space: nowrap; }
+    .sec__intro { font-size: 15.5px; line-height: 1.65; color: var(--muted2); margin: 0 0 22px; max-width: 70ch; }
+    .fam-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .fam-chip { display: flex; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 3px; padding: 14px 16px; text-decoration: none; color: inherit; transition: 0.2s; }
+    .fam-chip:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(47,74,52,0.10); }
+    .fam-chip--risk { border-left-color: var(--danger); }
+    .fam-chip__nom { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); }
+    .fam-chip__meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.5px; color: var(--muted); }
+    .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .card { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; text-decoration: none; color: inherit; transition: 0.2s; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(47,74,52,0.12); }
+    .card__img { position: relative; aspect-ratio: 4/3; overflow: hidden; border-bottom: 1px solid var(--line-soft); }
+    .card__ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-family: var(--serif); font-style: italic; color: var(--muted); background: repeating-linear-gradient(135deg, #f1ede1, #f1ede1 12px, #efe9da 12px, #efe9da 24px); }
+    .card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .card__body { padding: 18px 20px 22px; }
+    .card__name { font-family: var(--serif); font-weight: 500; font-size: 22px; margin: 0 0 4px; color: var(--ink); }
+    .card__latin { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+    .card__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 9px; border: 1px solid rgba(47,74,52,0.25); border-radius: 100px; color: var(--ink3); }
+    .badge--warn { border-color: rgba(156,74,57,0.4); color: var(--danger); }
+    @media (max-width: 720px) { .wrap { padding: 0 20px; } }
   </style>
 </Layout>
