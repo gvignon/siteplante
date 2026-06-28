@@ -45,5 +45,7 @@ pédagogique.
 - [x] Projet Astro initialisé (package.json, astro.config, content/config.ts)
 - [x] Page d'accueil + page liste + page fiche
 - [x] Première fiche plante (ortie)
-- [ ] `npm install` sur la machine de Gilles, puis `npm run dev`
-- [ ] Envoi sur GitHub + déploiement Netlify/GitHub Pages
+- [x] `npm install` sur la machine de Gilles, puis `npm run dev`
+- [x] Envoi sur GitHub (https://github.com/gvignon/siteplante) + déploiement Netlify (https://siteplante.netlify.app)
+- [ ] Ajouter des photos dans `public/images/`
+- [ ] Enrichir le catalogue de plantes (nouvelles fiches)
