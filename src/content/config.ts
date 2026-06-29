@@ -29,4 +29,35 @@ const plantes = defineCollection({
   }),
 });
 
-export const collections = { plantes };
+const animaux = defineCollection({
+  type: 'content',
+  schema: z.object({
+    nom: z.string(),
+    nomLatin: z.string(),
+    famille: z.string().optional(),
+    groupe: z.enum(['mammiferes', 'oiseaux', 'insectes', 'reptiles', 'amphibiens', 'poissons', 'invertebres']),
+    comestible: z.boolean(),
+    statutProtection: z.enum(['protégé', 'chassable', 'pêchable', 'commun']).default('commun'),
+    saison: z.array(z.enum(['printemps', 'été', 'automne', 'hiver'])),
+    habitat: z.string(),
+    image: z.string().optional(),
+    difficulte: z.enum(['facile', 'moyenne', 'experte']).default('facile'),
+    accroche: z.string().optional(),
+    description: z.array(z.string()).default([]),
+    callouts: z.array(z.object({ titre: z.string(), texte: z.string() })).default([]),
+    comportement: z.string().optional(),
+    recettes: z.array(z.object({ titre: z.string(), texte: z.string(), image: z.string().optional() })).default([]),
+    precautionTitre: z.string().optional(),
+    precautionIntro: z.string().optional(),
+    confusions: z.array(z.object({
+      nom: z.string(),
+      niveau: z.enum(['similaire', 'protégé', 'venimeux', 'mortel']),
+      texte: z.string(),
+    })).default([]),
+    regles: z.array(z.string()).default([]),
+    bonASavoir: z.array(z.string()).default([]),
+    sources: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { plantes, animaux };

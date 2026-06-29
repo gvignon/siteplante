@@ -2,7 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { familles } from '../data/familles';
+import { groupes } from '../data/groupes';
 const plantes = (await getCollection('plantes')).sort((a, b) => a.data.nom.localeCompare(b.data.nom));
+const animaux = (await getCollection('animaux')).sort((a, b) => a.data.nom.localeCompare(b.data.nom));
+const animCounts = {};
+animaux.forEach((a) => { animCounts[a.data.groupe] = (animCounts[a.data.groupe] || 0) + 1; });
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const counts = {};
 plantes.forEach((p) => { if (p.data.famille) counts[p.data.famille] = (counts[p.data.famille] || 0) + 1; });
@@ -25,6 +29,21 @@ plantes.forEach((p) => { if (p.data.famille) counts[p.data.famille] = (counts[p.
             <a class={`fam-chip${f.risque ? ' fam-chip--risk' : ''}`} href={`/familles/${f.slug}/`}>
               <span class="fam-chip__nom">{f.nom}</span>
               <span class="fam-chip__meta">{f.latin} · {counts[f.nom] ? `${counts[f.nom]} fiche${counts[f.nom] > 1 ? 's' : ''}` : 'à venir'}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="sec">
+      <div class="sec__head"><h2 class="sec__title">La faune</h2><span class="sec__rule"></span><a class="sec__link" href="/faune/">Tout voir →</a></div>
+      <p class="sec__intro">Observer et identifier les animaux sauvages — statuts légaux, comportements et précautions pour chaque espèce.</p>
+      <ul class="fam-grid">
+        {groupes.map((g) => (
+          <li>
+            <a class={`fam-chip${g.risque ? ' fam-chip--risk' : ''}`} href={`/faune/#${g.slug}`}>
+              <span class="fam-chip__nom">{g.nom}</span>
+              <span class="fam-chip__meta">{g.latin} · {animCounts[g.slug] ? `${animCounts[g.slug]} fiche${animCounts[g.slug] > 1 ? 's' : ''}` : 'à venir'}</span>
             </a>
           </li>
         ))}

@@ -1,0 +1,97 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { groupes } from '../../data/groupes';
+const animaux = (await getCollection('animaux')).sort((a, b) => a.data.nom.localeCompare(b.data.nom));
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const nomGroupe = { mammiferes: 'Mammifères', oiseaux: 'Oiseaux', insectes: 'Insectes', reptiles: 'Reptiles', amphibiens: 'Amphibiens', poissons: 'Poissons', invertebres: 'Invertébrés' };
+const statutColor = { protégé: '#1a5fa8', chassable: 'var(--amber)', pêchable: '#1a7e6e', commun: 'var(--accent)' };
+---
+<Layout titre="La faune">
+  <div class="wrap">
+    <header class="head">
+      <div class="eyebrow"><span class="eyebrow__line"></span><span class="eyebrow__txt">Catalogue</span></div>
+      <h1 class="head__title">La faune</h1>
+      <p class="head__intro">Observer, identifier et comprendre les animaux sauvages. Statuts légaux, identification et comportements — toujours dans le respect de la réglementation.</p>
+      <p class="head__count">{animaux.length} fiche{animaux.length > 1 ? 's' : ''}.</p>
+    </header>
+
+    <section class="sec">
+      <div class="sec__head"><h2 class="sec__title">Groupes</h2><span class="sec__rule"></span></div>
+      <ul class="groupe-grid">
+        {groupes.map((g) => {
+          const n = animaux.filter((a) => a.data.groupe === g.slug).length;
+          return (
+            <li>
+              <a class={`groupe-chip${g.risque ? ' groupe-chip--risk' : ''}`} href={`#${g.slug}`}>
+                <span class="groupe-chip__nom">{g.nom}</span>
+                <span class="groupe-chip__meta">{g.latin} · {n ? `${n} fiche${n > 1 ? 's' : ''}` : 'à venir'}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    {groupes.map((g) => {
+      const liste = animaux.filter((a) => a.data.groupe === g.slug);
+      if (!liste.length) return null;
+      return (
+        <section id={g.slug} class="sec">
+          <div class="sec__head"><h2 class="sec__title">{g.nom}</h2><span class="sec__rule"></span></div>
+          <ul class="grid">
+            {liste.map((a) => (
+              <li>
+                <a class="card" href={`/faune/${a.slug}/`}>
+                  <div class="card__img"><div class="card__ph">{a.data.nomLatin}</div>{a.data.image && <img src={a.data.image} alt={a.data.nom} loading="lazy" onerror="this.style.display='none'" />}</div>
+                  <div class="card__body">
+                    <h3 class="card__name">{a.data.nom}</h3>
+                    <p class="card__latin">{a.data.nomLatin}</p>
+                    <div class="card__badges">
+                      <span class="badge" style={`color:${statutColor[a.data.statutProtection]};border-color:${statutColor[a.data.statutProtection]}44`}>{cap(a.data.statutProtection)}</span>
+                      {a.data.confusions.length > 0 && <span class="badge badge--warn">Confusion possible</span>}
+                      {a.data.saison.map((s) => <span class="badge">{cap(s)}</span>)}
+                    </div>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })}
+  </div>
+  <style>
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .head { padding: 56px 0 36px; }
+    .eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .eyebrow__line { width: 34px; height: 1px; background: var(--accent); }
+    .eyebrow__txt { font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); }
+    .head__title { font-family: var(--serif); font-weight: 500; font-size: clamp(38px, 6vw, 64px); line-height: 1; letter-spacing: -1px; margin: 0 0 12px; color: #222b1b; }
+    .head__intro { font-size: 16px; line-height: 1.7; color: var(--ink3); margin: 0 0 10px; max-width: 64ch; }
+    .head__count { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; color: var(--muted); margin: 0; }
+    .sec { padding: 14px 0 52px; scroll-margin-top: 80px; }
+    .sec__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+    .sec__title { font-family: var(--serif); font-weight: 500; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink2); margin: 0; }
+    .sec__rule { flex: 1; height: 1px; background: rgba(47,74,52,0.18); }
+    .groupe-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .groupe-chip { display: flex; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 3px; padding: 14px 16px; text-decoration: none; color: inherit; transition: 0.2s; }
+    .groupe-chip:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(47,74,52,0.10); }
+    .groupe-chip--risk { border-left-color: var(--danger); }
+    .groupe-chip__nom { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); }
+    .groupe-chip__meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.5px; color: var(--muted); }
+    .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .card { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; text-decoration: none; color: inherit; transition: 0.2s; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(47,74,52,0.12); }
+    .card__img { position: relative; aspect-ratio: 4/3; overflow: hidden; border-bottom: 1px solid var(--line-soft); }
+    .card__ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-family: var(--serif); font-style: italic; color: var(--muted); background: repeating-linear-gradient(135deg, #e8f0e4, #e8f0e4 12px, #dfe8da 12px, #dfe8da 24px); }
+    .card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .card__body { padding: 18px 20px 22px; }
+    .card__name { font-family: var(--serif); font-weight: 500; font-size: 22px; margin: 0 0 4px; color: var(--ink); }
+    .card__latin { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+    .card__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 9px; border: 1px solid rgba(47,74,52,0.25); border-radius: 100px; color: var(--ink3); }
+    .badge--warn { border-color: rgba(156,74,57,0.4); color: var(--danger); }
+    @media (max-width: 720px) { .wrap { padding: 0 20px; } }
+  </style>
+</Layout>
