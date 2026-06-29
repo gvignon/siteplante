@@ -80,14 +80,15 @@ export const groupes: Groupe[] = [
     ],
   },
   {
-    slug: 'invertebres',
-    nom: 'Invertébrés',
-    latin: 'Invertebrata',
-    resume: "Escargots, limaces, araignées, mille-pattes, vers de terre et autres. Groupe très varié. Certains sont comestibles (escargot), d'autres venimeux (veuve noire, rare en France).",
+    slug: 'arachnides',
+    nom: 'Arachnides',
+    latin: 'Arachnida',
+    resume: "Araignées, scorpions, acariens et opilions. Huit pattes, corps en deux parties. Les araignées indigènes sont quasi toutes inoffensives ; quelques espèces méritent la prudence.",
     caracteristiques: [
-      "Pas de colonne vertébrale ; extrême diversité de formes.",
-      "Escargot de Bourgogne comestible ; collecte réglementée.",
-      "Araignées indigènes peu dangereuses ; prudence avec les espèces introduites.",
+      "8 pattes, corps en céphalothorax + abdomen, pas d'antennes.",
+      "Araignées indigènes peu dangereuses pour l'homme ; ne mordent que si saisies.",
+      "Tiques (acariens) : vecteurs de la maladie de Lyme — inspecter la peau après une sortie en nature.",
     ],
+    risque: true,
   },
 ];

@@ -35,7 +35,7 @@ const animaux = defineCollection({
     nom: z.string(),
     nomLatin: z.string(),
     famille: z.string().optional(),
-    groupe: z.enum(['mammiferes', 'oiseaux', 'insectes', 'reptiles', 'amphibiens', 'poissons', 'invertebres']),
+    groupe: z.enum(['mammiferes', 'oiseaux', 'insectes', 'reptiles', 'amphibiens', 'poissons', 'arachnides']),
     comestible: z.boolean(),
     statutProtection: z.enum(['protégé', 'chassable', 'pêchable', 'commun']).default('commun'),
     saison: z.array(z.enum(['printemps', 'été', 'automne', 'hiver'])),

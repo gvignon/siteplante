@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 import { groupes } from '../../data/groupes';
 const animaux = (await getCollection('animaux')).sort((a, b) => a.data.nom.localeCompare(b.data.nom));
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-const nomGroupe = { mammiferes: 'Mammifères', oiseaux: 'Oiseaux', insectes: 'Insectes', reptiles: 'Reptiles', amphibiens: 'Amphibiens', poissons: 'Poissons', invertebres: 'Invertébrés' };
+const nomGroupe = { mammiferes: 'Mammifères', oiseaux: 'Oiseaux', insectes: 'Insectes', reptiles: 'Reptiles', amphibiens: 'Amphibiens', poissons: 'Poissons', arachnides: 'Arachnides' };
 const statutColor = { protégé: '#1a5fa8', chassable: 'var(--amber)', pêchable: '#1a7e6e', commun: 'var(--accent)' };
 ---
 <Layout titre="La faune">

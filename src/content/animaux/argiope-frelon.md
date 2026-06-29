@@ -2,7 +2,7 @@
 nom: "Argiope frelon"
 nomLatin: "Argiope bruennichi"
 famille: "Araneidae"
-groupe: "invertebres"
+groupe: "arachnides"
 comestible: false
 statutProtection: "commun"
 saison: ["été", "automne"]
