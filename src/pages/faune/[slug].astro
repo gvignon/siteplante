@@ -93,12 +93,21 @@ const brandSvg = `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" ro
           </div>
         </div>
         <figure class="plate">
-          <div class="plate__frame">
+          <div class="plate__frame" id="obs-frame">
             <div class="plate__placeholder">{data.nomLatin}</div>
             {data.image && <img src={data.image} alt={`${data.nom}`} loading="lazy" onerror="this.style.display='none'" />}
             <span class="plate__num">N°&nbsp;{String(animal.slug.length).padStart(2,'0')}</span>
+            <div class="obs-overlay" id="obs-overlay" aria-hidden="true">+1</div>
           </div>
           <figcaption class="plate__cap"><span>{data.nomLatin.split(' ').map((w,i) => i===0 ? w[0]+'.' : w).join(' ')}</span><span>{data.saison[0]}</span></figcaption>
+          <button class="obs-btn" id="obs-btn" title="Enregistrer une observation">
+            <span class="obs-btn__icon">👁</span>
+            <span class="obs-btn__label">J'ai observé cet animal</span>
+          </button>
+          <div class="obs-stats" id="obs-stats">
+            <span class="obs-stats__count" id="obs-count"></span>
+            <span class="obs-stats__date" id="obs-date"></span>
+          </div>
         </figure>
       </div>
     </header>
@@ -281,6 +290,16 @@ const brandSvg = `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" ro
     .cal__m.is-on { color: var(--ink2); font-weight: 600; }
     .cal__legend { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--muted2); }
     .cal__sw { width: 12px; height: 12px; border-radius: 2px; background: var(--accent); }
+    .obs-btn { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 10px; padding: 11px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink2); transition: 0.2s; }
+    .obs-btn:hover { background: rgba(74,107,72,0.08); border-color: var(--accent); color: var(--accent); }
+    .obs-btn:active { transform: scale(0.98); }
+    .obs-btn__icon { font-size: 14px; }
+    .obs-stats { display: none; flex-direction: column; gap: 2px; margin-top: 8px; padding: 10px 14px; background: rgba(74,107,72,0.07); border-left: 2px solid var(--accent); border-radius: 2px; }
+    .obs-stats.is-visible { display: flex; }
+    .obs-stats__count { font-family: var(--serif); font-weight: 500; font-size: 16px; color: var(--ink); }
+    .obs-stats__date { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.5px; color: var(--muted); }
+    .obs-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 72px; font-weight: 500; color: #fff; background: rgba(74,107,72,0.55); opacity: 0; pointer-events: none; transition: opacity 0.3s; border-radius: 0; }
+    .obs-overlay.is-flash { opacity: 1; }
     .sources { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; color: var(--muted); padding: 8px 0 0; }
     @media (max-width: 820px) {
       .hero__grid, .sec--split { grid-template-columns: 1fr; gap: 36px; }
@@ -293,4 +312,42 @@ const brandSvg = `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" ro
       .danger-box { padding: 26px 20px; }
     }
   </style>
+
+<script define:vars={{ slug: animal.slug }}>
+  const keyCount = `obs-count-${slug}`;
+  const keyDate  = `obs-date-${slug}`;
+
+  function refresh() {
+    const n = parseInt(localStorage.getItem(keyCount) || '0');
+    const d = localStorage.getItem(keyDate) || '';
+    const stats = document.getElementById('obs-stats');
+    if (n > 0) {
+      document.getElementById('obs-count').textContent = `${n} observation${n > 1 ? 's' : ''}`;
+      document.getElementById('obs-date').textContent  = `Dernière fois le ${d}`;
+      stats.classList.add('is-visible');
+    }
+  }
+
+  function flash() {
+    const ov = document.getElementById('obs-overlay');
+    ov.classList.add('is-flash');
+    setTimeout(() => ov.classList.remove('is-flash'), 600);
+  }
+
+  document.getElementById('obs-btn').addEventListener('click', () => {
+    const n = parseInt(localStorage.getItem(keyCount) || '0') + 1;
+    const d = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    localStorage.setItem(keyCount, String(n));
+    localStorage.setItem(keyDate, d);
+    flash();
+    refresh();
+  });
+
+  document.getElementById('obs-frame').addEventListener('click', (e) => {
+    if (e.target.closest('#obs-btn')) return;
+    document.getElementById('obs-btn').click();
+  });
+
+  refresh();
+</script>
 </Layout>
