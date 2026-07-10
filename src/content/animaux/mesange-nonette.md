@@ -8,7 +8,7 @@ statutProtection: "protégé"
 saison: ["printemps", "été", "automne", "hiver"]
 habitat: "Forêts caducifoliées matures, aulnaies, chênaies, parcs arborés, bocages. Préfère les forêts humides avec du bois mort. Sédentaire et très fidèle à son territoire."
 image: "/images/animaux/mesange-nonette.jpg"
-difficulte: "intermédiaire"
+difficulte: "moyenne"
 accroche: "Coiffe noire brillante et joues blanches — la mésange nonnette ressemble à la mésange boréale mais s'en distingue par son chant et ses habitudes forestières. Une espèce discrète qui demande l'oreille autant que l'œil."
 description:
   - "11,5 cm. Calotte et gorge noires bien nettes (brillantes), joues blanches, dessus brun-gris, dessous beige-chamois. Pas de barre alaire blanche, bec court et fin. Très similaire à la mésange boréale mais la calotte est plus brillante et le bec légèrement plus fort."

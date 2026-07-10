@@ -8,7 +8,7 @@ statutProtection: "protégé"
 saison: ["printemps", "été", "automne", "hiver"]
 habitat: "Sous-bois denses et humides, haies épaisses, berges broussailleuses, ronciers, jardins avec végétation fournie. Préfère le niveau du sol et les enchevêtrements végétaux."
 image: "/images/animaux/troglodyte-mignon.jpg"
-difficulte: "intermédiaire"
+difficulte: "moyenne"
 accroche: "Minuscule oiseau brun à queue dressée, il se faufile dans les ronciers avec l'agilité d'une souris. Son chant — incroyablement puissant pour une si petite taille — éclate à toute heure, même en hiver."
 description:
   - "9,5 cm — l'un des plus petits oiseaux d'Europe. Entièrement brun chaud finement barré de brun foncé, sourcil crème discret, queue courte dressée presque à la verticale. Bec fin et légèrement courbé. Boule de plumes ronde et rebondie."

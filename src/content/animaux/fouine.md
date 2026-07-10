@@ -8,7 +8,7 @@ statutProtection: "chassable"
 saison: ["printemps", "été", "automne", "hiver"]
 habitat: "Forêts, bocages, villages, villes, greniers, garages, combles de maisons. La plus synanthrope des mustélidés — elle vit volontiers au contact de l'homme et colonise facilement les bâtiments."
 image: "/images/animaux/fouine.jpg"
-difficulte: "intermédiaire"
+difficulte: "moyenne"
 accroche: "Gorge blanche bifurquée, pelage brun-gris et regard perçant — la fouine est le mustélidé de nos greniers et de nos moteurs de voiture. Discrète et nocturne, elle est souvent détectée par ses dégâts avant d'être vue."
 description:
   - "40–55 cm de corps, queue de 20–30 cm. Pelage brun-gris uniforme avec une bavette blanche sur la gorge qui se bifurque en deux lobes vers les épaules (critère distinctif par rapport à la martre). Pattes courtes, corps allongé et souple. Museau pointu, oreilles arrondies."

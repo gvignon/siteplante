@@ -8,7 +8,7 @@ statutProtection: "commun"
 saison: ["été", "automne"]
 habitat: "Prairies, pâtures, pelouses, talus herbeux, lisières. Le criquet le plus commun de France — présent dans la plupart des milieux herbus non secs, de la plaine jusqu'à 2 000 m."
 image: "/images/animaux/criquet-des-patures.jpg"
-difficulte: "intermédiaire"
+difficulte: "moyenne"
 accroche: "Le froissement incessant des herbes sèches — c'est lui. Le criquet des pâtures est l'insecte stridulant le plus commun de nos prairies, indissociable du son de l'été à la campagne. Brun, camouflé, minuscule mais omniprésent."
 description:
   - "Corps 14–22 mm. Brun verdâtre ou brun-gris, très variable selon les individus et les populations. Antennes courtes et épaisses (moins longues que le corps — critère clé pour distinguer les criquets des sauterelles). Ailes courtes chez les femelles, n'atteignant pas l'abdomen ; ailes plus longues chez les mâles."

@@ -8,7 +8,7 @@ statutProtection: "protégé"
 saison: ["printemps", "été", "automne"]
 habitat: "Ubiquiste : forêts, bocages, milieux urbains, villages, jardins. L'une des chauves-souris les plus communes et les plus adaptées à la ville. Hiverne dans des fissures de bâtiments, grottes, caves."
 image: "/images/animaux/pipistrelle-commune.jpg"
-difficulte: "intermédiaire"
+difficulte: "moyenne"
 accroche: "La chauve-souris de nos soirées d'été — sa silhouette saccadée qui zig-zague au-dessus des jardins et des réverbères est une des images les plus familières du crépuscule estival. La pipistrelle est aussi la plus petite chauve-souris de France."
 description:
   - "Envergure 20–24 cm, poids 3 à 8 g — un poids de plume. Pelage brun foncé à brun-roux sur le dos, membrane alaire et oreilles noires. Museau court et trapu. Difficile à distinguer de la pipistrelle de Nathusius sans détecteur à ultrasons."

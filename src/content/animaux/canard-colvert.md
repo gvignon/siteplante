@@ -32,10 +32,10 @@ precautionTitre: "Chasse réglementée — canards sauvages et contamination"
 precautionIntro: "Le canard colvert est une espèce chassable mais sa chasse est strictement réglementée. Quelques précautions sanitaires s'imposent pour les canards sauvages."
 confusions:
   - nom: "Canard chipeau (Mareca strepera)"
-    niveau: "chassable"
+    niveau: "similaire"
     texte: "Mâle gris, miroir alaire blanc et noir (non bleu). Femelle très similaire au colvert femelle. Aussi chassable."
   - nom: "Sarcelle d'hiver (Anas crecca)"
-    niveau: "chassable"
+    niveau: "similaire"
     texte: "Beaucoup plus petite (35 cm), mâle avec tête brun-rouge et bande verte. Aussi chassable avec mêmes réglementations."
 regles:
   - "Chasse soumise à <strong>permis de chasser</strong>, périodes d'ouverture et quotas réglementés par arrêté préfectoral."
